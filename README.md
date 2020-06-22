@@ -1,7 +1,9 @@
 # cough-sound-analysis-backend
 Flask based backend server for accessing ML models
 
+
 ## API
-### POST:
-/detect/
-/classify/
+
+POST /detect/
+
+POST /classify/
