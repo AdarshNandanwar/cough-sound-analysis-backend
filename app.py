@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "audio_uploads")
-ALLOWED_EXTENSIONS = {'wav', 'mp3'}
+ALLOWED_EXTENSIONS = {'wav', 'mp3', '3gp'}
 SAMPLE_RATE = 22050
 
 app = Flask(__name__)
