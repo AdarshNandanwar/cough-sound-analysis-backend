@@ -66,6 +66,7 @@ def is_cough_present(feature_vector):
         prediction = int(loaded_model.predict([feature_vector])[0])
         return mapping.get(prediction)
     except Exception as e:
+        print("is_cough_present(): ", e)
         raise
 
 def get_cough_type(feature_vector):
@@ -83,6 +84,7 @@ def get_cough_type(feature_vector):
         prediction = loaded_model.predict([feature_vector])[0]
         return mapping.get(prediction)
     except Exception as e:
+        print("get_cough_type(): ", e)
         raise
 
 @app.route('/') 
@@ -120,6 +122,7 @@ def detect_cough():
         os.remove(file_path)
         res["data"]["prediction"] = prediction
     except Exception as e:
+        print("detect_cough(): ", e)
         res["status"] = "error"
         res["message"] = str(e)
 
@@ -160,7 +163,7 @@ def classify_cough():
             prediction = get_cough_type(feature_vector)
             res["data"]["prediction"] = prediction
     except Exception as e:
-        print(e)
+        print("classify_cough(): ", e)
         res["status"] = "error"
         res["message"] = str(e)
 
@@ -168,6 +171,4 @@ def classify_cough():
   
 # main driver function 
 if __name__ == '__main__':
-    if not os.path.exists(app.config['UPLOAD_FOLDER']):
-        os.makedirs(app.config['UPLOAD_FOLDER'])
     app.run()
