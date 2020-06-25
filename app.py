@@ -9,6 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "audio_uploads")
 ALLOWED_EXTENSIONS = {'wav', 'mp3', '3gp'}
 SAMPLE_RATE = 22050
+DURATION = 5
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -68,7 +69,7 @@ def is_cough_present(feature_vector):
         raise
 
 def get_cough_type(feature_vector):
-
+    # from audio_preprocessing.py log file
     mapping = {
         0: "whooping",
         1: "croup",
@@ -90,6 +91,13 @@ def home():
 
 @app.route('/detect', methods=['POST']) 
 def detect_cough():
+    res = {
+        "status": "success",
+        "data": {
+            "prediction": None
+        },
+        "message": ""
+    }
     try:
         if request.method == 'POST':
             # check if the post request has the file part
@@ -105,29 +113,27 @@ def detect_cough():
             
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         signal, sample_rate = librosa.load(file_path, sr=SAMPLE_RATE)
+        signal = signal.copy()
+        signal.resize((sample_rate*DURATION,))
         feature_vector = get_features_csv_row(signal, sample_rate)
         prediction = is_cough_present(feature_vector)
         os.remove(file_path)
-
-        res = {
-            "status": "success",
-            "data": {
-                "prediction": prediction
-            },
-            "message": ""
-        }
+        res["data"]["prediction"] = prediction
     except Exception as e:
-        res = {
-            "status": "error",
-            "data": {
-                "prediction": None
-            },
-            "message": str(e)
-        }
+        res["status"] = "error"
+        res["message"] = str(e)
+
     return jsonify(res)
 
 @app.route('/classify', methods=['POST']) 
 def classify_cough():
+    res = {
+        "status": "success",
+        "data": {
+            "prediction": None
+        },
+        "message": ""
+    }
     try:
         if request.method == 'POST':
             # check if the post request has the file part
@@ -143,37 +149,25 @@ def classify_cough():
 
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         signal, sample_rate = librosa.load(file_path, sr=SAMPLE_RATE)
+        signal = signal.copy()
+        signal.resize((sample_rate*DURATION,))
         feature_vector = get_features_csv_row(signal, sample_rate)
         os.remove(file_path)
         
         if not is_cough_present(feature_vector):
-            res = {
-                "status": "success",
-                "data": {
-                    "prediction": None
-                },
-                "message": "No coughing sound detected."
-            }
+            res["message"] = "No coughing sound detected"
         else:
             prediction = get_cough_type(feature_vector)
-            res = {
-                "status": "success",
-                "data": {
-                    "prediction": prediction
-                },
-                "message": ""
-            }
+            res["data"]["prediction"] = prediction
     except Exception as e:
-        res = {
-            "status": "error",
-            "data": {
-                "prediction": None
-            },
-            "message": str(e)
-        }
+        print(e)
+        res["status"] = "error"
+        res["message"] = str(e)
 
     return jsonify(res)
   
 # main driver function 
 if __name__ == '__main__':
+    if not os.path.exists(app.config['UPLOAD_FOLDER']):
+        os.makedirs(app.config['UPLOAD_FOLDER'])
     app.run()
