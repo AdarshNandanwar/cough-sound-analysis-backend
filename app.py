@@ -119,7 +119,7 @@ def detect_cough():
         signal.resize((sample_rate*DURATION,))
         feature_vector = get_features_csv_row(signal, sample_rate)
         prediction = is_cough_present(feature_vector)
-        os.remove(file_path)
+        # os.remove(file_path)
         res["data"]["prediction"] = prediction
     except Exception as e:
         print("detect_cough(): ", e)
@@ -162,7 +162,7 @@ def classify_cough():
         print("4: ", len(signal))
         feature_vector = get_features_csv_row(signal, sample_rate)
         print("5: ", len(feature_vector))
-        os.remove(file_path)
+        # os.remove(file_path)
         print("6: ")
         
         if not is_cough_present(feature_vector):
