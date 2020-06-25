@@ -119,7 +119,7 @@ def detect_cough():
         signal.resize((sample_rate*DURATION,))
         feature_vector = get_features_csv_row(signal, sample_rate)
         prediction = is_cough_present(feature_vector)
-        # os.remove(file_path)
+        os.remove(file_path)
         res["data"]["prediction"] = prediction
     except Exception as e:
         print("detect_cough(): ", e)
@@ -150,29 +150,19 @@ def classify_cough():
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            print("1: ")
 
-        print("2: ", filename)
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        print("3: ", file_path)
         signal, sample_rate = librosa.load(file_path, sr=SAMPLE_RATE)
         signal = signal.copy()
-        print("3: ", len(signal))
         signal.resize((sample_rate*DURATION,))
-        print("4: ", len(signal))
         feature_vector = get_features_csv_row(signal, sample_rate)
-        print("5: ", len(feature_vector))
-        # os.remove(file_path)
-        print("6: ")
+        os.remove(file_path)
         
         if not is_cough_present(feature_vector):
             res["message"] = "No coughing sound detected"
-            print("7: ")
         else:
             prediction = get_cough_type(feature_vector)
-            print("8: ")
             res["data"]["prediction"] = prediction
-            print("9: ")
     except Exception as e:
         print("classify_cough(): ", e)
         res["status"] = "error"
